@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIEWZY PLAYER - Votre lecteur vidéo personnel</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- CSS THEME VARIABLES --- */
+        :root {
+            /* Default to Dark Mode */
+            --color-background: #0A0A0A;
+            --color-surface: #111111;
+            --color-text: #EAEAEA;
+            --color-text-muted: #888888;
+            --color-border: #222222;
+            --color-accent: #007AFF;
+        }
+
+        html[data-theme="light"] {
+            --color-background: #F3F4F6;
+            --color-surface: #FFFFFF;
+            --color-text: #1F2937;
+            --color-text-muted: #6B7280;
+            --color-border: #E5E7EB;
+        }
+
+        /* --- GLOBAL RESET & STYLES --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: var(--color-background);
+            color: var(--color-text);
+            transition: background-color 0.3s ease, color 0.3s ease;
+            
+            /* Pure CSS Dot Grid Background */
+            background-image: radial-gradient(var(--color-text-muted) 0.5px, transparent 0);
+            background-size: 30px 30px;
+            background-position: -15px -15px;
+        }
+        
+        a { color: var(--color-accent); text-decoration: none; transition: opacity 0.2s; }
+        a:hover { opacity: 0.8; }
+        
+        .layout-container { max-width: 1000px; margin: 0 auto; padding: 0 2rem; }
+        
+        /* --- HEADER & NAVIGATION --- */
+        header {
+            padding: 1.25rem 0;
+            position: fixed; top: 0; left: 0; right: 0;
+            z-index: 100;
+            background-color: rgba(var(--color-background-rgb, 10, 10, 10), 0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--color-border);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        html[data-theme="light"] header { --color-background-rgb: 243, 244, 246; }
+
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* RTL Support for Arabic */
+        html[dir="rtl"] {
+            direction: rtl;
+        }
+
+        html[dir="rtl"] .navbar {
+            flex-direction: row-reverse;
+        }
+
+        html[dir="rtl"] .logo {
+            flex-direction: row-reverse;
+        }
+
+        html[dir="rtl"] .controls {
+            flex-direction: row-reverse;
+        }
+
+        /* Updated logo styles for icon + text */
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem; /* Space between icon and text */
+            color: var(--color-text);
+            text-decoration: none;
+        }
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px; /* Adjust as needed */
+        }
+        
+        .theme-switcher {
+            background: none; border: none; cursor: pointer;
+            padding: 0.5rem; color: var(--color-text);
+        }
+        .theme-switcher .icon { width: 24px; height: 24px; }
+        .theme-switcher .icon-sun { display: none; }
+        .theme-switcher .icon-moon { display: block; }
+        
+        html[data-theme="light"] .theme-switcher .icon-sun { display: block; }
+        html[data-theme="light"] .theme-switcher .icon-moon { display: none; }
+
+        /* --- LANGUAGE SWITCHER --- */
+        .language-switcher {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .lang-button {
+            background: none;
+            border: 1px solid var(--color-border);
+            color: var(--color-text);
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+
+        .lang-button:hover {
+            border-color: var(--color-accent);
+            color: var(--color-accent);
+        }
+
+        .lang-button.active {
+            background-color: var(--color-accent);
+            border-color: var(--color-accent);
+            color: white;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        /* --- MAIN CONTENT SECTIONS --- */
+        main { padding-top: 140px; }
+
+        .section {
+            padding: 5rem 0;
+            border-bottom: 1px solid var(--color-border);
+        }
+        .section:last-of-type { border-bottom: none; }
+
+        .section-header { text-align: center; margin-bottom: 4rem; }
+        
+        .section-title {
+            font-size: clamp(2.25rem, 6vw, 3.25rem);
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+        
+        .section-subtitle {
+            font-size: 1.125rem;
+            color: var(--color-text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* --- HERO SECTION --- */
+        .hero-section {
+            text-align: center;
+            min-height: 50vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        /* --- GRID LAYOUT & CARDS --- */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background-color: var(--color-surface);
+            border: 1px solid var(--color-border);
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: left;
+            transition: transform 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--color-accent);
+        }
+        
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .card-description { color: var(--color-text-muted); line-height: 1.6; }
+
+        /* --- DOWNLOAD BUTTON --- */
+        .download-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            background-color: var(--color-accent);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.125rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-top: 2rem;
+        }
+
+        .download-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 122, 255, 0.3);
+            color: white;
+            opacity: 1;
+        }
+
+        .download-button svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        /* --- FOOTER --- */
+        footer { padding: 4rem 2rem; text-align: center; color: var(--color-text-muted); }
+        footer p { margin-bottom: 0.5rem; }
+        
+        /* --- SCROLL ANIMATIONS --- */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            transition-delay: var(--stagger-delay, 0s);
+        }
+
+        .reveal.visible { opacity: 1; transform: translateY(0px); }
+    </style>
+</head>
+<body>
+    
+    <header>
+        <div class="layout-container navbar">
+            <a href="#" class="logo">
+                <img src="images/icon.png" alt="VIEWZY App Icon" class="logo-icon">
+                <span>VIEWZY</span>
+            </a>
+            <div class="controls">
+                <div class="language-switcher">
+                    <button class="lang-button active" data-lang="en">EN</button>
+                    <button class="lang-button" data-lang="fr">FR</button>
+                    <button class="lang-button" data-lang="ar">العربية</button>
+                </div>
+                <button class="theme-switcher" id="theme-toggle-button" aria-label="Toggle theme">
+                    <svg class="icon icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18.75a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-1.5a.75.75 0 01.75-.75zM5.166 17.834a.75.75 0 00-1.06 1.06l1.59 1.591a.75.75 0 001.061-1.06l-1.59-1.591zM5.25 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h1.5a.75.75 0 01.75.75zM6.166 5.106a.75.75 0 00-1.06 1.06l1.591 1.59a.75.75 0 001.06-1.061L6.166 5.106z"/></svg>
+                    <svg class="icon icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-3.51 1.713-6.638 4.386-8.552a.75.75 0 01.819.162z" clip-rule="evenodd" /></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="section hero-section">
+            <div class="layout-container reveal">
+                <h1 class="section-title" data-i18n="hero.title">Your Personal Video Player</h1>
+                <p class="section-subtitle" data-i18n="hero.subtitle">A smooth, secure application designed to play your own multimedia content.</p>
+                <a href="https://play.google.com/store/apps/details?id=com.viewzyplayer.android" class="download-button" target="_blank" rel="noopener">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M3,20.5V3.5C3,2.91 3.34,2.39 3.84,2.15L13.69,12L3.84,21.85C3.34,21.61 3,21.09 3,20.5M16.81,15.12L6.05,21.34L14.54,12.85L16.81,15.12M20.16,10.81C20.5,11.08 20.75,11.5 20.75,12C20.75,12.5 20.53,12.9 20.18,13.18L17.89,14.5L15.39,12L17.89,9.5L20.16,10.81M6.05,2.66L16.81,8.88L14.54,11.15L6.05,2.66Z"/>
+                    </svg>
+                    <span data-i18n="hero.download">Download on Google Play</span>
+                </a>
+            </div>
+        </section>
+
+        <section id="features" class="section">
+            <div class="layout-container">
+                <div class="section-header reveal">
+                    <h2 class="section-title" data-i18n="features.title">🎯 Designed for Simplicity</h2>
+                    <p class="section-subtitle" data-i18n="features.subtitle">VIEWZY is an intuitive application that lets you play your personal video files or links with complete privacy and control.</p>
+                </div>
+                <div class="feature-grid" data-stagger-children>
+                    <div class="feature-card reveal">
+                        <h3 class="card-title" data-i18n="features.compatibility.title">📁 Extended Compatibility</h3>
+                        <p class="card-description" data-i18n="features.compatibility.description">Supports various video formats such as MP4 and HLS (M3U8), ensuring smooth playback of your content.</p>
+                    </div>
+                    <div class="feature-card reveal">
+                        <h3 class="card-title" data-i18n="features.interface.title">💡 Clean Interface</h3>
+                        <p class="card-description" data-i18n="features.interface.description">A modern and responsive design for phones and tablets that puts your content first.</p>
+                    </div>
+                    <div class="feature-card reveal">
+                        <h3 class="card-title" data-i18n="features.multilingual.title">🌍 Multilingual</h3>
+                        <p class="card-description" data-i18n="features.multilingual.description">Interface available in English, Arabic, French and Italian.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="privacy" class="section">
+            <div class="layout-container">
+                <div class="section-header reveal">
+                    <h2 class="section-title" data-i18n="privacy.title">🔐 Respect for Your Privacy</h2>
+                    <p class="section-subtitle" data-i18n="privacy.subtitle">No data collection, no tracking. VIEWZY gives you complete control over your video experience.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="layout-container">
+            <p data-i18n="footer.copyright">© 2025 VIEWZY PLAYER – All Rights Reserved</p>
+            <p data-i18n="footer.disclaimer">This application is intended for personal and legal use only. No content sources are provided by default.</p>
+        </div>
+    </footer>
+
+    <script>
+    // --- TRANSLATIONS ---
+    const translations = {
+        en: {
+            'hero.title': 'Your Personal Video Player',
+            'hero.subtitle': 'A smooth, secure application designed to play your own multimedia content.',
+            'hero.download': 'Download on Google Play',
+            'features.title': '🎯 Designed for Simplicity',
+            'features.subtitle': 'VIEWZY is an intuitive application that lets you play your personal video files or links with complete privacy and control.',
+            'features.compatibility.title': '📁 Extended Compatibility',
+            'features.compatibility.description': 'Supports various video formats such as MP4 and HLS (M3U8), ensuring smooth playback of your content.',
+            'features.interface.title': '💡 Clean Interface',
+            'features.interface.description': 'A modern and responsive design for phones and tablets that puts your content first.',
+            'features.multilingual.title': '🌍 Multilingual',
+            'features.multilingual.description': 'Interface available in English, Arabic, French and Italian.',
+            'privacy.title': '🔐 Respect for Your Privacy',
+            'privacy.subtitle': 'No data collection, no tracking. VIEWZY gives you complete control over your video experience.',
+            'footer.copyright': '© 2025 VIEWZY PLAYER – All Rights Reserved',
+            'footer.disclaimer': 'This application is intended for personal and legal use only. No content sources are provided by default.'
+        },
+        fr: {
+            'hero.title': 'Votre lecteur vidéo personnel',
+            'hero.subtitle': 'Une application fluide, sécurisée, et conçue pour lire vos propres contenus multimédia.',
+            'hero.download': 'Télécharger sur Google Play',
+            'features.title': '🎯 Conçu pour la simplicité',
+            'features.subtitle': 'VIEWZY est une application intuitive qui vous permet de lire vos fichiers ou liens vidéo personnels en toute confidentialité et avec un contrôle total.',
+            'features.compatibility.title': '📁 Compatibilité étendue',
+            'features.compatibility.description': 'Prend en charge divers formats vidéo tels que MP4 et HLS (M3U8), vous garantissant une lecture fluide de vos contenus.',
+            'features.interface.title': '💡 Interface épurée',
+            'features.interface.description': 'Un design moderne et réactif pour téléphones et tablettes, qui met votre contenu au premier plan.',
+            'features.multilingual.title': '🌍 Multilingue',
+            'features.multilingual.description': 'Interface disponible en anglais, arabe, français et italien.',
+            'privacy.title': '🔐 Respect de votre vie privée',
+            'privacy.subtitle': 'Aucune collecte de données, aucun suivi. VIEWZY vous laisse le contrôle total de votre expérience vidéo.',
+            'footer.copyright': '© 2025 VIEWZY PLAYER – Tous droits réservés',
+            'footer.disclaimer': 'Cette application est destinée à un usage personnel et légal uniquement. Aucune source de contenu n\'est fournie par défaut.'
+        },
+        ar: {
+            'hero.title': 'مشغل الفيديو الشخصي الخاص بك',
+            'hero.subtitle': 'تطبيق سلس وآمن مصمم لتشغيل المحتوى المتعدد الوسائط الخاص بك.',
+            'hero.download': 'تحميل من جوجل بلاي',
+            'features.title': '🎯 مصمم للبساطة',
+            'features.subtitle': 'VIEWZY هو تطبيق بديهي يتيح لك تشغيل ملفات الفيديو الشخصية أو الروابط بخصوصية كاملة وتحكم تام.',
+            'features.compatibility.title': '📁 توافق موسع',
+            'features.compatibility.description': 'يدعم تنسيقات فيديو متنوعة مثل MP4 و HLS (M3U8)، مما يضمن تشغيلاً سلساً لمحتواك.',
+            'features.interface.title': '💡 واجهة نظيفة',
+            'features.interface.description': 'تصميم حديث ومتجاوب للهواتف والأجهزة اللوحية يضع محتواك في المقدمة.',
+            'features.multilingual.title': '🌍 متعدد اللغات',
+            'features.multilingual.description': 'واجهة متاحة باللغة الإنجليزية والعربية والفرنسية والإيطالية.',
+            'privacy.title': '🔐 احترام خصوصيتك',
+            'privacy.subtitle': 'لا جمع للبيانات، لا تتبع. VIEWZY يمنحك السيطرة الكاملة على تجربة الفيديو الخاصة بك.',
+            'footer.copyright': '© 2025 VIEWZY PLAYER – جميع الحقوق محفوظة',
+            'footer.disclaimer': 'هذا التطبيق مخصص للاستخدام الشخصي والقانوني فقط. لا يتم توفير مصادر المحتوى افتراضياً.'
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- THEME SWITCHER LOGIC ---
+        const themeToggleButton = document.getElementById('theme-toggle-button');
+        const htmlElement = document.documentElement;
+        
+        // Function to apply theme
+        const applyTheme = (theme) => {
+            htmlElement.dataset.theme = theme;
+            localStorage.setItem('theme', theme);
+        };
+
+        // On button click, toggle theme
+        themeToggleButton.addEventListener('click', () => {
+            const currentTheme = htmlElement.dataset.theme || 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(newTheme);
+        });
+
+        // Load saved theme or detect OS preference on initial load
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            applyTheme(savedTheme);
+        } else {
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            applyTheme(prefersDark ? 'dark' : 'light');
+        }
+
+        // --- LANGUAGE SWITCHING LOGIC ---
+        const langButtons = document.querySelectorAll('.lang-button');
+        
+        // Function to apply language
+        const applyLanguage = (lang) => {
+            // Update active button
+            langButtons.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
+            
+            // Set direction for Arabic
+            htmlElement.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+            
+            // Update all translatable elements
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    element.textContent = translations[lang][key];
+                }
+            });
+            
+            // Save language preference
+            localStorage.setItem('language', lang);
+        };
+        
+        // Language button click handlers
+        langButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const lang = button.dataset.lang;
+                applyLanguage(lang);
+            });
+        });
+        
+        // Load saved language or default to English
+        const savedLang = localStorage.getItem('language') || 'en';
+        applyLanguage(savedLang);
+
+        // --- SCROLL ANIMATION LOGIC ---
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    // We can choose to unobserve after first reveal for performance
+                    // observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.1 
+        });
+        
+        // Apply reveal to all elements with the class
+        document.querySelectorAll('.reveal').forEach(el => {
+            revealObserver.observe(el);
+        });
+
+        // Apply staggering effect to children of specified containers
+        document.querySelectorAll('[data-stagger-children]').forEach(container => {
+            const children = container.querySelectorAll('.reveal');
+            children.forEach((child, index) => {
+                child.style.setProperty('--stagger-delay', `${index * 100}ms`);
+            });
+        });
+
+    });
+    </script>
+</body>
+</html>

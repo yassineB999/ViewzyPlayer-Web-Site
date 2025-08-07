@@ -1,0 +1,16 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.get_login_creds"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.viewzyplayer.android",
+      "sha256_cert_fingerprints": [
+        "62:7C:8F:68:3A:26:59:3E:E0:B9:F9:74:81:7E:78:09:3E:0F:16:3D:B9:7F:CD:F6:EF:E7:70:8C:2A:1B:03:D6",
+        "63:2E:01:0B:A4:F4:C7:F6:7F:9C:68:CA:6C:DC:DC:22:80:00:2B:4E:A6:99:CC:54:92:CD:12:F5:14:12:AE:B6"
+      ]
+    }
+  }
+]
